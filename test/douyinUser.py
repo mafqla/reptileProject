@@ -1,3 +1,6 @@
+# 爬取个人主页视频
+# 2022-10-14 22:54:00
+
 import os
 
 import requests
@@ -5,8 +8,6 @@ import re
 from selenium import webdriver
 import time
 from contextlib import closing
-
-from selenium.webdriver.support.wait import WebDriverWait
 
 
 def get_home_ulrs(url):
@@ -40,12 +41,12 @@ def get_home_ulrs(url):
         temp_height = check_height
     time.sleep(6)
     num = browser.find_elements_by_xpath(
-        '//*[@id="root"]/div/div[2]/div/div/div/div[2]/div[2]/div/ul/li/a')
+        '//*[@id="root"]/div/div[2]/div/div/div/div[2]/div[2]/div[2]/div[2]/ul/li/a')
 
     # 如果num是空的，重新获取一次
     if not num:
         num = browser.find_elements_by_xpath(
-            '//*[@id="root"]/div/div[2]/div/div/div[4]/div[1]/div[3]/ul/li/a')
+            '//*[@id="root"]/div/div[2]/div/div/div/div[2]/div[2]/div[2]/div[2]/ul/li/a')
 
     print(len(num))
     urls = []
@@ -57,7 +58,27 @@ def get_home_ulrs(url):
     # print(set(urls))
     mainList = set(urls)
     browser.close()
-    return mainList
+    # 如果mainlist.txt不存在或者内容为空,就创建一个
+    if not os.path.exists('../dy_video/test/mainList.txt') or os.path.getsize('../dy_video/test/mainList.txt') == 0:
+        with open('../dy_video/test/mainList.txt', 'w') as f:
+            for i in mainList:
+                f.write(i + '\n')
+        return mainList
+    else:
+        # 如果mainlist.txt存在，就读取里面的内容
+        with open('../dy_video/test/mainList.txt', 'r') as f:
+            oldList = f.read().splitlines()
+            # print(oldList)
+            # print(mainList)
+            # 对比两个列表，取出差集
+            newList = mainList.difference(set(oldList))
+            # print(newList)
+            with open('../dy_video/test/mainList.txt', 'a') as f:
+                for i in newList:
+                    f.write(i + '\n')
+            return newList
+
+
 
 
 def get_video(url):
@@ -70,7 +91,6 @@ def get_video(url):
     '''
     browser.execute_script(clone)
     time.sleep(4)
-
     try:
         html = browser.find_element_by_xpath(
             '//*[@id="root"]/div/div[2]/div/div/div[1]/div[2]/div/xg-video-container/video/source[1]')
@@ -119,7 +139,7 @@ def get_video(url):
 
 def download(url, name):
     with closing(requests.get(url=url, verify=False, stream=True)) as res:
-        with open(f'../dy_video/my/{name}.mp4', 'wb') as fd:
+        with open(f'../dy_video/test/{name}.mp4', 'wb') as fd:
             for chunk in res.iter_content(chunk_size=1024):
                 if chunk:
                     fd.write(chunk)
@@ -127,7 +147,7 @@ def download(url, name):
 
 def check_file(name):
     # 读取文件夹，查看视频是否已经下载过
-    for root, dirs, files in os.walk('../dy_video'):
+    for root, dirs, files in os.walk('../dy_video/test'):
         for file in files:
             if file == f'{name}.mp4':
                 return True
@@ -136,10 +156,12 @@ def check_file(name):
 
 if __name__ == '__main__':
     # url = input('请输入个人主页地址')
-    url = 'https://www.douyin.com/user/MS4wLjABAAAAqy1OO-UP9J2LJ1xSg_lsryKCicbLFLGzBgTRRT4W14Y?showTab=like'
     print('正在获取视频地址')
+    # url = 'https://www.douyin.com/user/MS4wLjABAAAAQR4WK9JBK9HPic72xsYWettM23c9_fRFjXS_4xmMKMk'
+    # url = 'https://www.douyin.com/user/MS4wLjABAAAAXwIG49jiQeseDkb_Munkw8CEb4QCnpPi3HMhUjrLXAqqUp2h-qsNQ8c-kTE0s-Km?vid=7038935351213264163'
+    url = 'https://www.douyin.com/user/MS4wLjABAAAAudykaQobQkVEwL3EDRJXC4BNHs275NBvWyJZjqQ8dKQ?vid=7156181480975142159'
     urls = get_home_ulrs(url)
-    # print(urls)
+    print(urls)
     print('成功获取{}个,开始下载'.format(len(urls)))
     index = 1
     for url in urls:
