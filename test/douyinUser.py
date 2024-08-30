@@ -14,7 +14,7 @@ def get_home_ulrs(url):
     # 不显示浏览器
     options = webdriver.ChromeOptions()
     # 浏览器不显示
-    options.add_argument('headless')
+    # options.add_argument('headless')
     browser = webdriver.Chrome(options=options)
 
     browser.get(url)
@@ -108,7 +108,8 @@ def get_video(url):
     video_url = html.get_attribute('src')
 
     title = browser.find_element_by_xpath(
-        '//*[@id="root"]/div/div[2]/div/div/div[1]/div[3]/div/div[1]/div/h1/div/span[2]/span').text
+        '/html/body/div[2]/div[1]/div[2]/div[2]/div/div[1]/div[3]/div/div[1]/div/h2/span/span[2]/span/span/span/span/span').text
+    print(title)
     if not title:
         # 如果title为空，返回空
 
@@ -157,9 +158,9 @@ def check_file(name):
 if __name__ == '__main__':
     # url = input('请输入个人主页地址')
     print('正在获取视频地址')
-    # url = 'https://www.douyin.com/user/MS4wLjABAAAAQR4WK9JBK9HPic72xsYWettM23c9_fRFjXS_4xmMKMk'
+    url = 'https://www.douyin.com/user/MS4wLjABAAAAQR4WK9JBK9HPic72xsYWettM23c9_fRFjXS_4xmMKMk'
     # url = 'https://www.douyin.com/user/MS4wLjABAAAAXwIG49jiQeseDkb_Munkw8CEb4QCnpPi3HMhUjrLXAqqUp2h-qsNQ8c-kTE0s-Km?vid=7038935351213264163'
-    url = 'https://www.douyin.com/user/MS4wLjABAAAAudykaQobQkVEwL3EDRJXC4BNHs275NBvWyJZjqQ8dKQ?vid=7156181480975142159'
+    # url = 'https://www.douyin.com/user/MS4wLjABAAAAudykaQobQkVEwL3EDRJXC4BNHs275NBvWyJZjqQ8dKQ?vid=7156181480975142159'
     urls = get_home_ulrs(url)
     print(urls)
     print('成功获取{}个,开始下载'.format(len(urls)))
